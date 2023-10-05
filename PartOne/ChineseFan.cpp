@@ -107,27 +107,6 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 }
 
 
-//GLuint program = initShaders("square.vs", "square.fs");
-//glGenVertexArrays(1, &vao);
-//glBindVertexArray(vao);
-//
-//glGenBuffers(2, vbo);
-//
-//glBindBuffer(GL_ARRAY_BUFFER, vbo[0]); // vertex position
-//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), NULL, GL_STATIC_DRAW);
-//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
-//
-//glBindBuffer(GL_ARRAY_BUFFER, vbo[1]); // vertex color
-//glBufferData(GL_ARRAY_BUFFER, sizeof(colors), NULL, GL_STATIC_DRAW);
-//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(colors), colors);
-//glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-//
-//glEnableVertexAttribArray(0);
-//glEnableVertexAttribArray(1);
-//
-
-
 
 /*******************************************************/
 void init() {
