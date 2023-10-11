@@ -6,13 +6,10 @@ GLuint  ebo;
 GLuint v, f;
 GLboolean show_line = false;
 GLboolean vertex_update = false;
+GLboolean quarter_scale = false;
 
-// class code, follow uploaded exampled "hexagonScaledWMatrix"
 GLuint scaleLoc;
-
 mat4 scale_matrix(1.0f);
-//
-
 
 char* ReadFile(const char* filename);
 GLuint initShaders(char* v_shader, char* f_shader);
@@ -55,8 +52,8 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 	v = glCreateShader(GL_VERTEX_SHADER);
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const char * vs = ReadFile(v_shader);
-	const char * fs = ReadFile(f_shader);
+	const char* vs = ReadFile(v_shader);
+	const char* fs = ReadFile(f_shader);
 
 	glShaderSource(v, 1, &vs, NULL);
 	glShaderSource(f, 1, &fs, NULL);
@@ -121,28 +118,28 @@ void init() {
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-	
+
 	glGenBuffers(2, vbo);  // you need to have two buffer objects if color is added
-	
+
 	// For the 1st attribute - vertex positions
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]); 
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// For the 2nd attribute - color
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(colors), colors);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-    // class code vv
-    modelLoc = glGetUniformLocation(program, "model_matrix");
-    
+	// class code vv
+	scaleLoc = glGetUniformLocation(program, "scale_matrix");
+	glUniformMatrix4fv(scaleLoc, 1, GL_FALSE, (GLfloat*)&scale_matrix[0]);
 }
 /*******************************************************/
 void Keyboard(unsigned char key, int x, int y) {
@@ -154,6 +151,9 @@ void Keyboard(unsigned char key, int x, int y) {
 		break;
 	case 'w': case 'W':
 		show_line = !show_line;
+		break;
+	case 's': case 'S':
+		quarter_scale = !quarter_scale;
 		break;
 	case 'u': case 'U':
 		vertex_update = !vertex_update;
@@ -169,18 +169,25 @@ void display(void) {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glPointSize(20.0);
-
 	glLineWidth(5.0);
 	if (show_line)
 		glPolygonMode(GL_FRONT, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT, GL_FILL);
-	
-	
-	glBindVertexArray(vao); 
+	glBindVertexArray(vao);
 
-	// add codes on updating vertices
+
+	if (quarter_scale) {
+        glPointSize(10.0);
+		scale_matrix = scale(mat4(1.0f), vec3(.25, .25, 1.0));
+	}
+	else {
+        glPointSize(20.0);
+		scale_matrix = scale(mat4(1.0f), vec3(1, 1, 1.0));
+	}
+	glUniformMatrix4fv(scaleLoc, 1, GL_FALSE, (GLfloat*)&scale_matrix[0]);
+	
+
 	if (vertex_update) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices_update), vertices_update);
@@ -190,12 +197,12 @@ void display(void) {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 	}
 
-    
+
 	glDrawArrays(GL_TRIANGLES, 0, 24);
 	glDrawArrays(GL_POINTS, 0, 24);
 	glPolygonMode(GL_FRONT, GL_LINE);
 	glDrawArrays(GL_TRIANGLES, 0, 24);
-	
+
 	glFlush();
 
 }
