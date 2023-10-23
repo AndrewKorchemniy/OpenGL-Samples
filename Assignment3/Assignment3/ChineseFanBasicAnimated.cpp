@@ -1,4 +1,4 @@
-#include "ChineseFan.h"
+#include "ChineseFanBasic.h"
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <stdio.h>
@@ -135,7 +135,7 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 /*******************************************************/
 void init() {
 
-	GLuint program = initShaders("chineseFan.vs", "chineseFan.fs");
+	GLuint program = initShaders("ChineseFan.vs", "ChineseFan.fs");
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);

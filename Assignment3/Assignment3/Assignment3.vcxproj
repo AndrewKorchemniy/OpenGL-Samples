@@ -19,14 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChineseFan.cpp" />
+    <ClInclude Include="ChineseFanBasic.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="chineseFan.fs" />
-    <None Include="chineseFan.vs" />
+    <None Include="ChineseFan.fs" />
+    <None Include="ChineseFan.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChineseFan.h" />
+    <ClCompile Include="ChineseFanBasicAnimated.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
