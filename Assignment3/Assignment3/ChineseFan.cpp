@@ -232,6 +232,13 @@ void updateAxisRotation(int n) {
 
 /**********************************************************/
 
+void updateFolding(int n) {
+	vertex_update = !vertex_update;
+	glutTimerFunc(500, updateFolding, 1);
+}
+
+/**********************************************************/
+
 void display(void) {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -289,6 +296,7 @@ int main(int argc, char** argv) {
 	glutKeyboardFunc(Keyboard);
 	glutTimerFunc(100, updateRotation, 1);
 	glutTimerFunc(500, updateAxisRotation, 1);
+	glutTimerFunc(500, updateFolding, 1);
 	glutMainLoop();
 
 	return 0;
