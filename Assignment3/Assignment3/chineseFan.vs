@@ -3,12 +3,11 @@
 layout (location = 0) in vec4 vPosition;
 layout (location = 1) in vec4 vColor;
 
-uniform mat4 trans_matrix;
-uniform mat4 scale_matrix;
+uniform mat4 model_matrix;
 
 out vec4 color;
 
 void main(){
-     gl_Position = trans_matrix * scale_matrix * vPosition;
+     gl_Position = model_matrix * vPosition;
      color = vColor;
 }

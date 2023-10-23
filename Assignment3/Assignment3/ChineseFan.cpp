@@ -1,6 +1,15 @@
 #include "ChineseFan.h"
-#include <iostream>
-using namespace std;
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define GLM_FORCE_RADIANS 
+
+#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
+
+using namespace glm;
 
 GLuint  vao;
 GLuint  vbo[2];
@@ -9,14 +18,19 @@ GLuint v, f;
 GLboolean show_line = false;
 GLboolean vertex_update = false;
 GLboolean quarter_scale = false;
-GLboolean multiple_transform = false;
+GLboolean multiple_fans = false;
+GLboolean rotation_transform = false;
 double radDist = 0.6;
 double degDist = 60;
+float rotation_degree = 0;
+float axis_rotation_degree = 0;
 
-GLuint scaleLoc;
 mat4 scale_matrix(1.0f);
-GLuint transLoc;
 mat4 trans_matrix(1.0f);
+mat4 rotate_matrix(1.0f);
+mat4 axis_rotate_matrix(1.0f);
+GLuint model_loc(1.0f);
+mat4 model_matrix(1.0f);
 
 char* ReadFile(const char* filename);
 GLuint initShaders(char* v_shader, char* f_shader);
@@ -144,13 +158,10 @@ void init() {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	// Scale uniform
-	scaleLoc = glGetUniformLocation(program, "scale_matrix");
-	glUniformMatrix4fv(scaleLoc, 1, GL_FALSE, (GLfloat*)&scale_matrix[0]);
-
-	// Translation uniform
-	transLoc = glGetUniformLocation(program, "trans_matrix");
-	glUniformMatrix4fv(transLoc, 1, GL_FALSE, (GLfloat*)&trans_matrix[0]);
+	// Combined model transformation uniform
+	model_loc = glGetUniformLocation(program, "model_matrix");
+	model_matrix = axis_rotate_matrix * trans_matrix * scale_matrix;
+	glUniformMatrix4fv(model_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 }
 /*******************************************************/
 void Keyboard(unsigned char key, int x, int y) {
@@ -167,7 +178,10 @@ void Keyboard(unsigned char key, int x, int y) {
 		quarter_scale = !quarter_scale;
 		break;
 	case 'm': case 'M':
-		multiple_transform = !multiple_transform;
+		multiple_fans = !multiple_fans;
+		break;
+	case 'r': case 'R':
+		rotation_transform = !rotation_transform;
 		break;
 	case 'u': case 'U':
 		vertex_update = !vertex_update;
@@ -185,7 +199,8 @@ void drawFan(double v1, double v2, double v3) {
 		glPolygonMode(GL_FRONT, GL_FILL);
 
 	trans_matrix = translate(mat4(1.0), vec3(v1, v2, v3));
-	glUniformMatrix4fv(transLoc, 1, GL_FALSE, (GLfloat*)&trans_matrix[0]);
+	model_matrix = trans_matrix * axis_rotate_matrix * scale_matrix;
+	glUniformMatrix4fv(model_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 
 	glDrawArrays(GL_TRIANGLES, 0, 24);
 	glDrawArrays(GL_POINTS, 0, 24);
@@ -195,8 +210,29 @@ void drawFan(double v1, double v2, double v3) {
 
 /**********************************************************/
 
-void display(void) {
+void updateRotation(int n) {
+	if (rotation_transform) {
+		rotation_degree += 5;
+		rotate_matrix = glm::rotate(mat4(1.0f), radians((float)rotation_degree), vec3(0.0, 0.0, 1.0f));
+		glutPostRedisplay();
+	}
+	glutTimerFunc(100, updateRotation, 1);
+}
 
+/**********************************************************/
+
+void updateAxisRotation(int n) {
+	if (rotation_transform) {
+		axis_rotation_degree += 5;
+		axis_rotate_matrix = glm::rotate(mat4(1.0f), radians((float)axis_rotation_degree), vec3(0.0, 0.0, 1.0f));
+		glutPostRedisplay();
+	}
+	glutTimerFunc(500, updateAxisRotation, 1);
+}
+
+/**********************************************************/
+
+void display(void) {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -211,7 +247,6 @@ void display(void) {
         glPointSize(20.0);
 		scale_matrix = scale(mat4(1.0f), vec3(1, 1, 1.0));
 	}
-	glUniformMatrix4fv(scaleLoc, 1, GL_FALSE, (GLfloat*)&scale_matrix[0]);
 
 	if (vertex_update) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -223,13 +258,13 @@ void display(void) {
 	}
 
 	drawFan(0, 0, 0);
-	if (quarter_scale && multiple_transform) {
-		drawFan(radDist * cos(radians(degDist * 0)), radDist * sin(radians(degDist * 0)), 0.0);
-		drawFan(radDist * cos(radians(degDist * 1)), radDist * sin(radians(degDist * 1)), 0.0);
-		drawFan(radDist * cos(radians(degDist * 2)), radDist * sin(radians(degDist * 2)), 0.0);
-		drawFan(radDist * cos(radians(degDist * 3)), radDist * sin(radians(degDist * 3)), 0.0);
-		drawFan(radDist * cos(radians(degDist * 4)), radDist * sin(radians(degDist * 4)), 0.0);
-		drawFan(radDist * cos(radians(degDist * 5)), radDist * sin(radians(degDist * 5)), 0.0);
+	if (quarter_scale && multiple_fans) {
+		drawFan(radDist * cos(radians(degDist * 0 + rotation_degree)), radDist * sin(radians(degDist * 0 + rotation_degree)), 0.0);
+		drawFan(radDist * cos(radians(degDist * 1 + rotation_degree)), radDist * sin(radians(degDist * 1 + rotation_degree)), 0.0);
+		drawFan(radDist * cos(radians(degDist * 2 + rotation_degree)), radDist * sin(radians(degDist * 2 + rotation_degree)), 0.0);
+		drawFan(radDist * cos(radians(degDist * 3 + rotation_degree)), radDist * sin(radians(degDist * 3 + rotation_degree)), 0.0);
+		drawFan(radDist * cos(radians(degDist * 4 + rotation_degree)), radDist * sin(radians(degDist * 4 + rotation_degree)), 0.0);
+		drawFan(radDist * cos(radians(degDist * 5 + rotation_degree)), radDist * sin(radians(degDist * 5 + rotation_degree)), 0.0);
 	}
 	glFlush();
 }
@@ -252,6 +287,8 @@ int main(int argc, char** argv) {
 	printf("%s\n", glGetString(GL_VERSION));
 	glutDisplayFunc(display);
 	glutKeyboardFunc(Keyboard);
+	glutTimerFunc(100, updateRotation, 1);
+	glutTimerFunc(500, updateAxisRotation, 1);
 	glutMainLoop();
 
 	return 0;
