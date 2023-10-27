@@ -43,3 +43,7 @@
 *.db
 *.suo
 *.ilk
+*.db-wal
+*.db-shm
+*.opendb
+settings.json
