@@ -140,7 +140,7 @@ void Initialize(void) {
 	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (GLfloat*)&view_matrix[0]);
 
 	projection_matrix_loc = glGetUniformLocation(program, "projection_matrix");
-	projection_matrix = ortho(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, 10.0f);
+	projection_matrix = ortho(-2.0f, 2.0f, -2.0f, 2.0f, -10.0f, 10.0f);
 	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);
 
 	createCube();
@@ -163,9 +163,30 @@ void Display(void){
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-
-
+	mat4 shear_matrix = { 1, 0.5, 0, 0, 0.5, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&shear_matrix[0]);
 	drawCube();
+
+	model_matrix = translate(mat4(1.0f), vec3(-0.6f, -0.6f, 0.0f));
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+	model_matrix = rotate(mat4(1.0f), radians(45.0f), vec3(1.0, 0.0, 0.0));
+	model_matrix = translate(model_matrix, vec3(0.6, 0.6, 0));
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+	model_matrix = scale(mat4(1.0f), vec3(1.5, 1.5, 1.0));
+	model_matrix = translate(model_matrix, vec3(0.6, -0.6, 0));
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+	model_matrix = rotate(mat4(1.0f), radians(45.0f), vec3(1.0, 2.0, 3.0));
+	model_matrix = translate(model_matrix, vec3(-0.6f, 0.6f, 0.0f));
+	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+		
 
 	glFlush();
 }
