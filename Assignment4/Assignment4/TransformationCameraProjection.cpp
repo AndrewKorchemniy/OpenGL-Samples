@@ -171,18 +171,18 @@ void Display(void){
 	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawCube();
 
-	model_matrix = rotate(mat4(1.0f), radians(45.0f), vec3(1.0, 0.0, 0.0));
-	model_matrix = translate(model_matrix, vec3(0.6, 0.6, 0));
+	model_matrix = translate(mat4(1.0f), vec3(0.6, 0.6, 0));
+	model_matrix = rotate(model_matrix, radians(45.0f), vec3(1.0, 0.0, 0.0));
 	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawCube();
 
-	model_matrix = scale(mat4(1.0f), vec3(1.5, 1.5, 1.0));
-	model_matrix = translate(model_matrix, vec3(0.6, -0.6, 0));
+	model_matrix = translate(mat4(1.0f) , vec3(0.6, -0.6, 0));
+	model_matrix = scale(model_matrix, vec3(1.5, 1.5, 1.0));
 	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawCube();
 
-	model_matrix = rotate(mat4(1.0f), radians(45.0f), vec3(1.0, 2.0, 3.0));
-	model_matrix = translate(model_matrix, vec3(-0.6f, 0.6f, 0.0f));
+	model_matrix = translate(mat4(1.0f) , vec3(-0.6f, 0.6f, 0.0f));
+	model_matrix = rotate(model_matrix, radians(45.0f), vec3(1.0, 2.0, 3.0));
 	glUniformMatrix4fv(model_matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawCube();
 
