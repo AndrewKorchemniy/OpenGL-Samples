@@ -163,12 +163,21 @@ void Display(void){
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	if (top_view) {
+		view_matrix = lookAt(vec3(0.0, 3.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, -1.0));
+	}
+	else {
+		view_matrix = lookAt(vec3(0.0, 0.0, 3.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+	}
+	
 	if (change_projection) {
 		projection_matrix = frustum(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, 10.0f);
 	}
 	else {
 		projection_matrix = ortho(-2.0f, 2.0f, -2.0f, 2.0f, 2.0f, 10.0f);
 	}
+
+	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (GLfloat*)&view_matrix[0]);
 	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);
 
 	mat4 shear_matrix = { 1, 0.5, 0, 0, 0.5, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
