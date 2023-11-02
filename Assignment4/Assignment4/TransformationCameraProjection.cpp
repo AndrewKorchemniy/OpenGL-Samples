@@ -164,10 +164,10 @@ void Display(void){
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	if (top_view) {
-		view_matrix = lookAt(vec3(0.0, 3.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, -1.0));
+		view_matrix = lookAt(vec3(0.0, 3.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(-cos(radians(angle)), 0.0, -sin(radians(angle))));
 	}
 	else {
-		view_matrix = lookAt(vec3(0.0, 0.0, 3.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
+		view_matrix = lookAt(vec3(3.0 * cos(radians(angle)), 0.0, 3.0 * sin(radians(angle))), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0));
 	}
 	
 	if (change_projection) {
@@ -252,6 +252,7 @@ int main(int argc, char** argv) {
 	printf("%s\n", glGetString(GL_VERSION));
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(keyboard);
+	glutTimerFunc(100, Timer, 1);
 	glutMainLoop();
 	return 0;
 }
