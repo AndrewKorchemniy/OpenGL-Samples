@@ -4,5 +4,5 @@
 void createCube();
 void drawCube();
 
-extern	unsigned int cube_vao;
+extern unsigned int cube_vao;
 

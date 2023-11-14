@@ -12,5 +12,5 @@ out vec4 fColor;
 void main(void)
 {
     gl_Position = (projection_matrix*view_matrix*model_matrix*position);
-fColor = color;
+    fColor = color;
 }

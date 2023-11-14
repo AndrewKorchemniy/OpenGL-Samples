@@ -8,9 +8,9 @@ void createPlane()
 	GLfloat plane_vertices[] = { -side, 0.0, side, 1.0, //0
 								 side, 0.0, side, 1.0,  //1
 								-side, 0.0, -side, 1.0, //2
-								side, 0.0, -side, 1.0,//3
-								-side, 0.0, -side, 1.0,//2
-								side, 0.0, side, 1.0 };//1
+								side, 0.0, -side, 1.0, //3
+								-side, 0.0, -side, 1.0, //2
+								side, 0.0, side, 1.0 }; //1
 
 	GLfloat plane_colors[] = {
 		0.0, 1.0, 0.0, 1.0,
@@ -22,7 +22,8 @@ void createPlane()
 	};
 
 
-	GLushort plane_indices[] = { 0, 1, 2,
+	GLushort plane_indices[] = { 
+		0, 1, 2,
 		3, 2, 1
 	};   
 

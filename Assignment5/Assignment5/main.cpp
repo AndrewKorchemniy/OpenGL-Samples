@@ -7,6 +7,7 @@
 
 #include "Plane.h"
 #include "Cube.h"
+#include "Parasol.h"
 
 
 #define GLM_FORCE_RADIANS 
@@ -33,7 +34,7 @@ mat4 projection_matrix(1.0f);
 mat4 model_matrix(1.0f);
 
 
-GLfloat eye[3] = { 0.0f, 0.0f, 6.0f };
+GLfloat eye[3] = { 0.0f, 4.5f, 6.0f };
 GLfloat center[3] = { 0.0f, 0.0f, 0.0f };
 GLfloat offset = 0.0;
 
@@ -80,8 +81,8 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 	GLuint v = glCreateShader(GL_VERTEX_SHADER);
 	GLuint f = glCreateShader(GL_FRAGMENT_SHADER);
 
-	const char * vs = ReadFile(v_shader);
-	const char * fs = ReadFile(f_shader);
+	const char* vs = ReadFile(v_shader);
+	const char* fs = ReadFile(f_shader);
 
 	glShaderSource(v, 1, &vs, NULL);
 	glShaderSource(f, 1, &fs, NULL);
@@ -145,22 +146,22 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 }
 
 /*******************************************************/
-void Initialize(void){
+void Initialize(void) {
 	// Create the program for rendering the model
 
 	program = initShaders("shader.vs", "shader.fs");
 
-	
+
 	// attribute indices
 	model_matrix = mat4(1.0f);
 	view_matrix_loc = glGetUniformLocation(program, "view_matrix");
 	matrix_loc = glGetUniformLocation(program, "model_matrix");
 	projection_matrix_loc = glGetUniformLocation(program, "projection_matrix");
-	
+
 	createPlane();
 	createCube();
+	createParasol();
 
-	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
@@ -175,7 +176,7 @@ void Display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	else
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
+
 	// Setup view matrix 
 
 	view_matrix = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(center[0], center[1], center[2]), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -183,26 +184,21 @@ void Display(void)
 
 	//Add the aspect ratio! You also need to use glutReshapeFunc!
 
-	projection_matrix = perspective(radians(60.0f), 1.0f, 1.0f, 20.0f);
-	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);
+	projection_matrix = perspective(radians(90.0f), 1.0f, 1.0f, 20.0f);
+	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);	
 
+	model_matrix = scale(mat4(1.0f), vec3(0.25, 5.0, 0.25));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
 
-	//Cube is being drawn without any transformation
+	model_matrix = translate(mat4(1.0f), vec3(0.0, -2.5, 0.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawPlane();
 
 	model_matrix = mat4(1.0f);
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawParasol();
 
-	drawCube();
-	
-	//Plane is at the bottom of the cube and is being drawn with some transformation
-	model_matrix = translate(mat4(1.0f), vec3(0.0, -0.5, 0.0));
-	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
-
-	drawPlane();
-
-	//Add a parasol
-
-	
 	glutSwapBuffers();
 }
 
@@ -212,19 +208,19 @@ void rotate(int n) {
 	switch (n) {
 	case 1:
 		rotateAngle += 5.0f;
-		
+
 		glutPostRedisplay();
 		glutTimerFunc(100, rotate, 1);
 		break;
-		
+
 	}
 
 }
 
 
-void keyboard(unsigned char key, int x, int y){
+void keyboard(unsigned char key, int x, int y) {
 
-	switch (key){
+	switch (key) {
 	case 'q':case 'Q':
 		exit(EXIT_SUCCESS);
 		break;
@@ -232,18 +228,18 @@ void keyboard(unsigned char key, int x, int y){
 	case 's':case 'S':
 		show_line = !show_line;
 		break;
-	//Add othere statements here!
-	
-	} 
+		//Add othere statements here!
+
+	}
 	glutPostRedisplay();
 }
 
 
 /*********/
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 800);
 
 	glutCreateWindow("Parasol");
@@ -258,9 +254,9 @@ int main(int argc, char** argv){
 	glutKeyboardFunc(keyboard);
 
 	//Add other callback functions here!
-	
+
 	glutMainLoop();
-	
+
 	return 0;
 }
 
