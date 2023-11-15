@@ -22,8 +22,6 @@ GLuint projection_matrix_loc;
 GLuint view_matrix_loc;
 GLuint program;
 
-//different boolean variables
-
 bool show_line = false;
 bool open_parasol = true;
 
@@ -33,6 +31,7 @@ mat4 view_matrix(1.0f);
 mat4 projection_matrix(1.0f);
 mat4 model_matrix(1.0f);
 
+float aspect = 0.0;
 
 GLfloat eye[3] = { 0.0f, 4.5f, 6.0f };
 GLfloat center[3] = { 0.0f, 0.0f, 0.0f };
@@ -70,9 +69,6 @@ char* ReadFile(const char* filename) {
 	return (source);
 
 }
-
-/*************************************************************/
-/*************************************************************/
 
 GLuint initShaders(const char* v_shader, const char* f_shader) {
 
@@ -145,14 +141,9 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 
 }
 
-/*******************************************************/
 void Initialize(void) {
-	// Create the program for rendering the model
-
 	program = initShaders("shader.vs", "shader.fs");
 
-
-	// attribute indices
 	model_matrix = mat4(1.0f);
 	view_matrix_loc = glGetUniformLocation(program, "view_matrix");
 	matrix_loc = glGetUniformLocation(program, "model_matrix");
@@ -165,9 +156,7 @@ void Initialize(void) {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-
-void Display(void)
-{
+void Display(void) {
 	// Clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -178,14 +167,11 @@ void Display(void)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Setup view matrix 
-
 	view_matrix = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(center[0], center[1], center[2]), glm::vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (GLfloat*)&view_matrix[0]);
 
-	//Add the aspect ratio! You also need to use glutReshapeFunc!
-
-	projection_matrix = perspective(radians(90.0f), 1.0f, 1.0f, 20.0f);
-	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);	
+	projection_matrix = perspective(radians(90.0f), 1.0f * aspect, 1.0f, 20.0f);
+	glUniformMatrix4fv(projection_matrix_loc, 1, GL_FALSE, (GLfloat*)&projection_matrix[0]);
 
 	model_matrix = scale(mat4(1.0f), vec3(0.25, 5.0, 0.25));
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
@@ -194,42 +180,61 @@ void Display(void)
 	model_matrix = translate(mat4(1.0f), vec3(0.0, -2.5, 0.0));
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawPlane();
-
-	model_matrix = mat4(1.0f);
+	
+	if (open_parasol) {
+		model_matrix = translate(mat4(1.0f), vec3(0.0, 2, 0.0));
+	}
+	else {
+		model_matrix = translate(mat4(1.0f), vec3(0.0, 0.5, 0.0));
+		model_matrix = scale(model_matrix, vec3(0.35, 4, 0.35));
+	}
+	model_matrix = rotate(model_matrix, radians(rotateAngle), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawParasol();
 
 	glutSwapBuffers();
 }
 
-//reuse this in glutTimerFunc!
-
 void rotate(int n) {
 	switch (n) {
 	case 1:
-		rotateAngle += 5.0f;
-
+		if (open_parasol)
+			rotateAngle += 5.0f;
 		glutPostRedisplay();
 		glutTimerFunc(100, rotate, 1);
 		break;
-
 	}
+}
 
+void Reshape(int width, int height) {
+	glViewport(0, 0, width, height);
+	aspect = float(width) / float(height);
+}
+
+void SpecialKeys(int key, int x, int y) {
+	if (key == GLUT_KEY_UP)
+		eye[2] += 0.05;
+	if (key == GLUT_KEY_DOWN)
+		eye[2] -= 0.05;
 }
 
 
 void keyboard(unsigned char key, int x, int y) {
-
 	switch (key) {
 	case 'q':case 'Q':
 		exit(EXIT_SUCCESS);
 		break;
-
 	case 's':case 'S':
 		show_line = !show_line;
 		break;
-		//Add othere statements here!
-
+	case 'r':case 'R':
+		eye[0] = 0.0f;
+		eye[1] = 4.5f;
+		eye[2] = 6.0f;
+		break;
+	case 'o':case 'O':
+		open_parasol = !open_parasol;
+		break;
 	}
 	glutPostRedisplay();
 }
@@ -237,7 +242,6 @@ void keyboard(unsigned char key, int x, int y) {
 
 /*********/
 int main(int argc, char** argv) {
-
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
 	glutInitWindowSize(800, 800);
@@ -252,9 +256,9 @@ int main(int argc, char** argv) {
 	printf("%s\n", glGetString(GL_VERSION));
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(keyboard);
-
-	//Add other callback functions here!
-
+	glutSpecialFunc(SpecialKeys);
+	glutReshapeFunc(Reshape);
+	glutTimerFunc(100, rotate, 1);
 	glutMainLoop();
 
 	return 0;

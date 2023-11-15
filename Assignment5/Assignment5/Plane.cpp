@@ -52,5 +52,5 @@ void createPlane()
 
 void drawPlane() {
 	glBindVertexArray(plane_vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, 0);
 }
