@@ -24,15 +24,12 @@
     <ClCompile Include="Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Parasol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs">
+    <None Include="shader_picnic_table.fs">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shader.vs">
+    <None Include="shader_picnic_table.vs">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
@@ -41,9 +38,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Plane.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Parasol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

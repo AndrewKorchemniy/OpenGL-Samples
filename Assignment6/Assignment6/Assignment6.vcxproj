@@ -21,16 +21,14 @@
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Parasol.cpp" />
     <ClCompile Include="Plane.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
+    <None Include="shader_picnic_table.fs" />
+    <None Include="shader_picnic_table.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
-    <ClInclude Include="Parasol.h" />
     <ClInclude Include="Plane.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

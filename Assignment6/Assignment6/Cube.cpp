@@ -33,38 +33,6 @@ void createCube()
 
 	
 
-	GLfloat cube_colors[] = { 1.0f, 1.0f, 1.0f, 1.0f, // v0,v1,v2,v3 (front)
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		
-		0.8f, 0.8f, 0.8f, 1.0f,// v0,v3,v4,v5 (right)
-		0.8f, 0.8f, 0.8f, 1.0f,
-		0.8f, 0.8f, 0.8f, 1.0f,
-		0.8f, 0.8f, 0.8f, 1.0f,
-		
-		0.5f, 0.5f, 0.5f, 1.0f, // v0,v5,v6,v1 (top)
-		0.5f, 0.5f, 0.5f, 1.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,
-		
-		0.8f, 0.8f, 0.8f, 1.0f,// v0,v3,v4,v5 (left)
-		0.8f, 0.8f, 0.8f, 1.0f,
-		0.8f, 0.8f, 0.8f, 1.0f,
-		0.8f, 0.8f, 0.8f, 1.0f,
-		
-		0.5f, 0.5f, 0.5f, 1.0f, // v0,v5,v6,v1 (bottom)
-		0.5f, 0.5f, 0.5f, 1.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,
-		0.5f, 0.5f, 0.5f, 1.0f,
-
-
-		1.0f, 1.0f, 1.0f, 1.0f,// v4,v7,v6,v5 (back)
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f };
-
-
 	GLushort cube_indices[] = { 0, 1, 2, 2, 3, 0,      // front
 		4, 5, 6, 6, 7, 4,      // right
 		8, 9, 10, 10, 11, 8,      // top
@@ -75,20 +43,15 @@ void createCube()
 	glGenVertexArrays(1, &cube_vao);
 	glBindVertexArray(cube_vao);
 
-	unsigned int handle[3];
-	glGenBuffers(3, handle);
+	unsigned int handle[2];
+	glGenBuffers(2, handle);
 
 	glBindBuffer(GL_ARRAY_BUFFER, handle[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer((GLuint)0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);  // Vertex position
 
-	glBindBuffer(GL_ARRAY_BUFFER, handle[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_colors), cube_colors, GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);  // Vertex normal
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle[2]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, handle[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_indices), cube_indices, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
