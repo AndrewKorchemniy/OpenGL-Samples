@@ -31,6 +31,38 @@ void createCube()
 							   -side, side, -side, 1.0f,
 							   side, side, -side, 1.0f };
 
+
+
+	GLfloat cube_colors[] = { 1.0f, 1.0f, 1.0f, 1.0f, // v0,v1,v2,v3 (front)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+
+					1.0f, 1.0f, 1.0f, 1.0f,// v0,v3,v4,v5 (right)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+
+					1.0f, 1.0f, 1.0f, 1.0f, // v0,v5,v6,v1 (top)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+
+					1.0f, 1.0f, 1.0f, 1.0f,// v1,v6,v7,v2 (left)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+
+					1.0f, 1.0f, 1.0f, 1.0f,// v7,v4,v3,v2 (bottom)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+
+					1.0f, 1.0f, 1.0f, 1.0f,// v4,v7,v6,v5 (back)
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 1.0f, 1.0f };
+
 	GLfloat cube_normals[] = { // Front
 					0.0f, 0.0f, 1.0f,
 					0.0f, 0.0f, 1.0f,
@@ -62,7 +94,6 @@ void createCube()
 					0.0f, 0.0f, -1.0f,
 					0.0f, 0.0f, -1.0f,
 	};
-
 
 	GLushort cube_indices[] = { 0, 1, 2, 2, 3, 0,      // front
 								4, 5, 6, 6, 7, 4,      // right

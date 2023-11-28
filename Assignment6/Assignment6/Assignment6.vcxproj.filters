@@ -24,7 +24,7 @@
     <ClCompile Include="Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShadeBasic.cpp">
+    <ClCompile Include="ShadeBonus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -43,7 +43,7 @@
     <ClInclude Include="Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShadeBasic.h">
+    <ClInclude Include="ShadeBonus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

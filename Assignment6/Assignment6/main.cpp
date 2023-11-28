@@ -6,7 +6,7 @@
 
 #include "Plane.h"
 #include "Cube.h"
-#include "ShadeBasic.h"
+#include "ShadeBonus.h"
 
 #define GLM_FORCE_RADIANS 
 
@@ -32,18 +32,20 @@ mat4 projection_matrix(1.0f);
 mat4 model_matrix(1.0f);
 
 //Add light components
-vec4 light_position(0.0, 4.0, 0.0, 1.0);
+vec4 light_position(5.0, 10.0, 5.0, 1.0);
 vec3 light_ambient(0.3, 0.3, 0.3);
 vec3 light_color(1.0, 1.0, 1.0);
 vec3 material_color(0.9, 0.5, 0.3);
+float shininess = 50.0f;
 
 // uniform indices of light
 GLuint ambient_loc;
 GLuint light_source_loc;
 GLuint light_position_loc;
 GLuint material_color_loc;
+GLuint shininess_loc;
 
-GLfloat eye[3] = { 0.0f, 2.5f, 8.0f };
+GLfloat eye[3] = { 0.0f, 2.75f, 8.0f };
 GLfloat center[3] = { 0.0f, 0.0f, 0.0f };
 GLfloat offset = 0.0;
 
@@ -152,7 +154,7 @@ void Initialize(void) {
 	view_matrix_loc = glGetUniformLocation(program, "view_matrix");
 	matrix_loc = glGetUniformLocation(program, "model_matrix");
 	projection_matrix_loc = glGetUniformLocation(program, "projection_matrix");
-	
+
 	createPlane();
 	createCube();
 	createShade();
@@ -170,10 +172,13 @@ void Initialize(void) {
 	glUniform3fv(material_color_loc, 1, (GLfloat*)&material_color[0]);
 
 	light_source_loc = glGetUniformLocation(program, "LightColor");
-	glUniform3fv(ambient_loc, 1, (GLfloat*)&light_color[0]);
+	glUniform3fv(light_source_loc, 1, (GLfloat*)&light_color[0]);
 
 	light_position_loc = glGetUniformLocation(program, "LightPosition");
-	glUniform3fv(material_color_loc, 1, (GLfloat*)&light_position[0]);
+	glUniform4fv(light_position_loc, 1, (GLfloat*)&light_position[0]);
+
+	shininess_loc = glGetUniformLocation(program, "Shininess");
+	glUniform1f(shininess_loc, shininess);
 }
 
 
@@ -247,7 +252,7 @@ void Display(void) {
 	material_color = vec3(0.0, 1.0, 0.0);
 	glUniform3fv(material_color_loc, 1, (GLfloat*)&material_color[0]);
 	drawPlane();
-	
+
 	glutSwapBuffers();
 }
 
@@ -265,7 +270,7 @@ void keyboard(unsigned char key, int x, int y) {
 				eye[2] = 0.000001;
 			}
 			else {
-				eye[1] = 2.5f;
+				eye[1] = 2.75f;
 				eye[2] = 8.0f;
 			}
 			break;
