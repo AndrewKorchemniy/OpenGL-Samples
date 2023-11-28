@@ -22,6 +22,7 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="ShadeBasic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader_picnic_table.fs" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="ShadeBasic.h" />
     <ClInclude Include="Plane.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -6,6 +6,7 @@
 
 #include "Plane.h"
 #include "Cube.h"
+#include "ShadeBasic.h"
 
 #define GLM_FORCE_RADIANS 
 
@@ -20,9 +21,8 @@ GLuint view_matrix_loc;
 GLuint program;
 
 //different boolean variables
-
 bool show_line = false;
-
+bool top_view = false;
 
 const double kPI = 3.1415926535897932384626433832795;
 
@@ -63,7 +63,6 @@ char* ReadFile(const char* filename) {
 	infile = fopen(filename, "rb");
 #endif
 
-
 	if (!infile) {
 		printf("Unable to open file %s\n", filename);
 		return NULL;
@@ -77,7 +76,6 @@ char* ReadFile(const char* filename) {
 	fclose(infile);
 	source[len] = 0;
 	return (source);
-
 }
 
 /*************************************************************/
@@ -100,29 +98,22 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 	free((char*)fs);
 
 	glCompileShader(v);
-
 	GLint compiled;
 
 	glGetShaderiv(v, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
 		GLsizei len;
 		glGetShaderiv(v, GL_INFO_LOG_LENGTH, &len);
-
 		char* log = (char*)malloc(len + 1);
-
 		glGetShaderInfoLog(v, len, &len, log);
-
 		printf("Vertex Shader compilation failed: %s\n", log);
-
 		free(log);
-
 	}
 
 	glCompileShader(f);
 	glGetShaderiv(f, GL_COMPILE_STATUS, &compiled);
 
 	if (!compiled) {
-
 		GLsizei len;
 		glGetShaderiv(f, GL_INFO_LOG_LENGTH, &len);
 		char* log = (char*)malloc(len + 1);
@@ -139,7 +130,6 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 	glGetProgramiv(p, GL_LINK_STATUS, &linked);
 
 	if (!linked) {
-
 		GLsizei len;
 		glGetProgramiv(p, GL_INFO_LOG_LENGTH, &len);
 		char* log = (char*)malloc(len + 1);
@@ -149,15 +139,12 @@ GLuint initShaders(const char* v_shader, const char* f_shader) {
 	}
 
 	glUseProgram(p);
-
 	return p;
-
 }
 
 /*******************************************************/
-void Initialize(void){
+void Initialize(void) {
 	// Create the program for rendering the model
-
 	program = initShaders("shader_picnic_table.vs", "shader_picnic_table.fs");
 
 	// attribute indices
@@ -168,6 +155,7 @@ void Initialize(void){
 	
 	createPlane();
 	createCube();
+	createShade();
 
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	projection_matrix = perspective(radians(90.0f), 1.0f, 1.0f, 20.0f);
@@ -175,21 +163,21 @@ void Initialize(void){
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Add uniform indices for light and material
-
-	
 	ambient_loc = glGetUniformLocation(program, "Ambient");
 	glUniform3fv(ambient_loc, 1, (GLfloat*)&light_ambient[0]);
 
-	
 	material_color_loc = glGetUniformLocation(program, "MaterialColor");
 	glUniform3fv(material_color_loc, 1, (GLfloat*)&material_color[0]);
 
+	light_source_loc = glGetUniformLocation(program, "LightColor");
+	glUniform3fv(ambient_loc, 1, (GLfloat*)&light_color[0]);
+
+	light_position_loc = glGetUniformLocation(program, "LightPosition");
+	glUniform3fv(material_color_loc, 1, (GLfloat*)&light_position[0]);
 }
 
 
-void Display(void)
-{
+void Display(void) {
 	// Clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -197,6 +185,7 @@ void Display(void)
 
 	// Setup view matrix
 	view_matrix = glm::lookAt(vec3(eye[0], eye[1], eye[2]), glm::vec3(center[0], center[1], center[2]), glm::vec3(0.0f, 1.0f, 0.0f));
+	view_matrix = rotate(view_matrix, radians(rotateAngle), vec3(0.0f, 1.0f, 0.0f));
 	glUniformMatrix4fv(view_matrix_loc, 1, GL_FALSE, (GLfloat*)&view_matrix[0]);
 
 	// Draws the pole
@@ -204,13 +193,57 @@ void Display(void)
 	glUniform3fv(material_color_loc, 1, (GLfloat*)&material_color[0]);
 	model_matrix = translate(mat4(1.0f), vec3(offset, 0.0, 0.0))*scale(mat4(1.0f), vec3(0.20, 8.0, 0.20));
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
 
+	// Draws the shade
+	model_matrix = translate(mat4(1.0f), vec3(offset, 3.1, 0.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawShade();
+
+	// Draws the tabletop
+	model_matrix = translate(mat4(1.0f), vec3(offset, 0.0, 0.0)) * scale(mat4(1.0f), vec3(3.0, 0.25, 3.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+	// Draws the table legs
+	mat4 shear_matrix = { 1, 0, 0, 0, 0.25, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	model_matrix = translate(mat4(1.0f), vec3(offset - 1, -2, 0.0));
+	model_matrix = model_matrix * shear_matrix * scale(mat4(1.0f), vec3(0.4, 4.0, 0.4));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	shear_matrix = { 1, 0, 0, 0, 0, 1, -0.25, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	model_matrix = translate(mat4(1.0f), vec3(offset, -2, 1));
+	model_matrix = model_matrix * shear_matrix * scale(mat4(1.0f), vec3(0.4, 4.0, 0.4));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	shear_matrix = { 1, 0, 0, 0, -0.25, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	model_matrix = translate(mat4(1.0f), vec3(offset + 1, -2, 0.0));
+	model_matrix = model_matrix * shear_matrix * scale(mat4(1.0f), vec3(0.4, 4.0, 0.4));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	shear_matrix = { 1, 0, 0, 0, 0, 1, 0.25, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+	model_matrix = translate(mat4(1.0f), vec3(offset, -2, -1));
+	model_matrix = model_matrix * shear_matrix * scale(mat4(1.0f), vec3(0.4, 4.0, 0.4));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+
+	// Draws the stools
+	model_matrix = translate(mat4(1.0f), vec3(offset + 3.0, -3.0, 0.0)) * scale(mat4(1.0f), vec3(2.0, 2.0, 2.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	model_matrix = translate(mat4(1.0f), vec3(offset - 3.0, -3.0, 0.0)) * scale(mat4(1.0f), vec3(2.0, 2.0, 2.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	model_matrix = translate(mat4(1.0f), vec3(offset, -3.0, -3.0)) * scale(mat4(1.0f), vec3(2.0, 2.0, 2.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
+	drawCube();
+	model_matrix = translate(mat4(1.0f), vec3(offset, -3.0, 3.0)) * scale(mat4(1.0f), vec3(2.0, 2.0, 2.0));
+	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
 	drawCube();
 
 	// Draws the ground
 	model_matrix = translate(mat4(1.0f), vec3(offset, -4.0, 0.0));
 	glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, (GLfloat*)&model_matrix[0]);
-
 	material_color = vec3(0.0, 1.0, 0.0);
 	glUniform3fv(material_color_loc, 1, (GLfloat*)&material_color[0]);
 	drawPlane();
@@ -219,18 +252,39 @@ void Display(void)
 }
 
 
-void keyboard(unsigned char key, int x, int y){
+void keyboard(unsigned char key, int x, int y) {
 
-	switch (key){
-	case 'q':case 'Q':
-		exit(EXIT_SUCCESS);
-		break;
+	switch (key) {
+		case 'q':case 'Q':
+			exit(EXIT_SUCCESS);
+			break;
+		case 't':case 'T':
+			top_view = !top_view;
+			if (top_view) {
+				eye[1] = 10.0f;
+				eye[2] = 0.000001;
+			}
+			else {
+				eye[1] = 2.5f;
+				eye[2] = 8.0f;
+			}
+			break;
 	}
 	glutPostRedisplay();
 }
 
+void rotate(int n) {
+	switch (n) {
+	case 1:
+		rotateAngle += 1.0f;
+		glutPostRedisplay();
+		glutTimerFunc(20, rotate, 1);
+		break;
+	}
+}
+
 /*********/
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH);
@@ -246,6 +300,7 @@ int main(int argc, char** argv){
 	printf("%s\n", glGetString(GL_VERSION));
 	glutDisplayFunc(Display);
 	glutKeyboardFunc(keyboard);
+	glutTimerFunc(20, rotate, 1);
 	glutMainLoop();
 	
 	return 0;
